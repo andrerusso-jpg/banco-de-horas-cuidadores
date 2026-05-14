@@ -4,7 +4,7 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ .
-RUN npm run build
+RUN npm run build -- --outDir dist
 
 # Estágio 2: build do backend (com os estáticos do React dentro)
 FROM maven:3.9-eclipse-temurin-21-alpine AS backend
