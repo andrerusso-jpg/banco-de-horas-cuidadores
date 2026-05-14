@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: banco-de-horas
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: PGHOST
+        fromDatabase:
+          name: banco-de-horas-db
+          property: host
+      - key: PGPORT
+        fromDatabase:
+          name: banco-de-horas-db
+          property: port
+      - key: PGDATABASE
+        fromDatabase:
+          name: banco-de-horas-db
+          property: database
+      - key: PGUSER
+        fromDatabase:
+          name: banco-de-horas-db
+          property: user
+      - key: PGPASSWORD
+        fromDatabase:
+          name: banco-de-horas-db
+          property: password
+
+databases:
+  - name: banco-de-horas-db
+    databaseName: bancodehoras
+    plan: free
