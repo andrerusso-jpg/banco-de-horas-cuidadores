@@ -1,0 +1,32 @@
+services:
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bancodehoras
+      POSTGRES_USER: bh_user
+      POSTGRES_PASSWORD: bh_pass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bh_user -d bancodehoras"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/bancodehoras
+      DATABASE_USERNAME: bh_user
+      DATABASE_PASSWORD: bh_pass
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
