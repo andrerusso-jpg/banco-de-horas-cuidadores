@@ -3,9 +3,9 @@ package com.bancodehoras.config;
 import com.bancodehoras.model.Funcionario;
 import com.bancodehoras.repository.FuncionarioRepository;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,9 +30,10 @@ public class DataInitializer {
     );
 
     @Bean
-    ApplicationRunner seed(@Lazy FuncionarioRepository repo) {
+    ApplicationRunner seed(ApplicationContext ctx) {
         return args -> {
             try {
+                FuncionarioRepository repo = ctx.getBean(FuncionarioRepository.class);
                 if (repo.count() == 0) {
                     NOMES.stream().map(Funcionario::new).forEach(repo::save);
                     System.out.println("Base de dados inicializada com " + NOMES.size() + " funcionários.");
