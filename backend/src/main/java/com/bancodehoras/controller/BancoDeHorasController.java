@@ -53,4 +53,9 @@ public class BancoDeHorasController {
     public ResumoGeralDTO resumo() {
         return service.getResumo();
     }
+
+    @GetMapping("/health")
+    public Map<String, String> health() {
+        return Map.of("status", "ok");
+    }
 }
