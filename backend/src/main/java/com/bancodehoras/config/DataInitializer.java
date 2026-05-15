@@ -5,6 +5,7 @@ import com.bancodehoras.repository.FuncionarioRepository;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +30,7 @@ public class DataInitializer {
     );
 
     @Bean
-    ApplicationRunner seed(FuncionarioRepository repo) {
+    ApplicationRunner seed(@Lazy FuncionarioRepository repo) {
         return args -> {
             try {
                 if (repo.count() == 0) {
