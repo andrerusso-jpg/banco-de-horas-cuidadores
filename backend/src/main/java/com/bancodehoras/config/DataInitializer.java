@@ -31,9 +31,13 @@ public class DataInitializer {
     @Bean
     ApplicationRunner seed(FuncionarioRepository repo) {
         return args -> {
-            if (repo.count() == 0) {
-                NOMES.stream().map(Funcionario::new).forEach(repo::save);
-                System.out.println("Base de dados inicializada com " + NOMES.size() + " funcionários.");
+            try {
+                if (repo.count() == 0) {
+                    NOMES.stream().map(Funcionario::new).forEach(repo::save);
+                    System.out.println("Base de dados inicializada com " + NOMES.size() + " funcionários.");
+                }
+            } catch (Exception e) {
+                System.err.println("AVISO: falha ao inicializar banco de dados: " + e.getMessage());
             }
         };
     }
