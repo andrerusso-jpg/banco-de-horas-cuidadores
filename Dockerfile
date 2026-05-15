@@ -16,8 +16,8 @@ COPY --from=frontend /app/frontend/dist ./src/main/resources/static
 RUN mvn package -DskipTests -q
 
 # Estágio 3: imagem final mínima
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 COPY --from=backend /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-Xmx192m", "-Xms64m", "-Xss256k", "-XX:+UseSerialGC", "-XX:MaxMetaspaceSize=96m", "-XX:+UseContainerSupport", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Xmx256m", "-XX:+UseContainerSupport", "-jar", "app.jar"]
