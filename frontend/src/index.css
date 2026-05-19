@@ -1,10 +1,10 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --blue:       #4f46e5;
-  --blue-dark:  #3730a3;
-  --blue-light: #ede9fe;
-  --blue-mid:   #6366f1;
+  --blue:       #1e3a5f;
+  --blue-dark:  #162d4a;
+  --blue-light: #dbeafe;
+  --blue-mid:   #2563a8;
   --green:      #059669;
   --green-bg:   #d1fae5;
   --red:        #dc2626;
@@ -28,7 +28,7 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #f5f3ff;
+  background: #f0f4f8;
   color: var(--text);
   font-size: 14px;
   line-height: 1.6;
@@ -46,10 +46,10 @@ body {
 
 /* ── Header ── */
 header {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #1e3a5f 0%, #2563a8 100%);
   color: var(--white);
   padding: 0;
-  box-shadow: 0 4px 20px rgba(79,70,229,.35);
+  box-shadow: 0 4px 20px rgba(30,58,95,.35);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -107,7 +107,7 @@ header .subtitle {
   height: 3px;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
-.stat-card.total::before   { background: linear-gradient(90deg, #4f46e5, #7c3aed); }
+.stat-card.total::before   { background: linear-gradient(90deg, #1e3a5f, #2563a8); }
 .stat-card.credito::before { background: linear-gradient(90deg, #059669, #10b981); }
 .stat-card.debito::before  { background: linear-gradient(90deg, #dc2626, #ef4444); }
 .stat-card.zerado::before  { background: linear-gradient(90deg, #6b7280, #9ca3af); }
@@ -153,7 +153,7 @@ header .subtitle {
 }
 .search-input:focus {
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(79,70,229,.12);
+  box-shadow: 0 0 0 3px rgba(30,58,95,.12);
 }
 .search-input::placeholder { color: #9ca3af; }
 
@@ -175,11 +175,11 @@ header .subtitle {
 .btn-primary {
   background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
   color: var(--white);
-  box-shadow: 0 2px 8px rgba(79,70,229,.35);
+  box-shadow: 0 2px 8px rgba(30,58,95,.35);
 }
 .btn-primary:hover {
   background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 100%);
-  box-shadow: 0 4px 14px rgba(79,70,229,.45);
+  box-shadow: 0 4px 14px rgba(30,58,95,.45);
   transform: translateY(-1px);
 }
 .btn-primary:active { transform: translateY(0); }
@@ -245,7 +245,7 @@ td {
 tbody tr:last-child td { border-bottom: none; }
 tbody tr { transition: background .1s; }
 .clickable { cursor: pointer; }
-.clickable:hover td { background: #faf9ff; }
+.clickable:hover td { background: #eef4fb; }
 
 /* ── Saldo badge ── */
 .saldo {
@@ -271,7 +271,7 @@ tbody tr { transition: background .1s; }
   font-size: 12px;
   font-weight: 600;
 }
-.tipo-CAPACITACAO_REUNIAO { background: var(--blue-light); color: #4338ca; }
+.tipo-CAPACITACAO_REUNIAO { background: var(--blue-light); color: #1e3a5f; }
 .tipo-ATESTADO            { background: var(--yellow-bg);  color: var(--yellow); }
 .tipo-OUTROS              { background: var(--gray-bg);    color: var(--gray); }
 
@@ -382,7 +382,7 @@ tbody tr { transition: background .1s; }
 .form-group select:focus,
 .form-group textarea:focus {
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(79,70,229,.12);
+  box-shadow: 0 0 0 3px rgba(30,58,95,.12);
 }
 .form-group textarea { resize: vertical; min-height: 80px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
