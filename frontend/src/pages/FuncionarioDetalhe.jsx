@@ -223,20 +223,18 @@ export default function FuncionarioDetalhe() {
               </thead>
               <tbody>
                 {funcionario.registros.map(r => (
-                  <tr key={r.id}>
-                    <td style={{ whiteSpace: 'nowrap', fontWeight: 500 }}>{r.data}</td>
-                    <td>
-                      <span className={`tipo-badge tipo-${r.tipo}`}>{r.tipoDescricao}</span>
-                    </td>
-                    <td>
+                  <tr key={r.id} className="registro-row">
+                    <td className="td-data">{r.data}</td>
+                    <td className="td-horas">
                       <span className={`saldo ${r.totalMinutos >= 0 ? 'positivo' : 'negativo'}`}>
                         {r.horasFormatadas}
                       </span>
+                      <span className={`tipo-badge tipo-${r.tipo}`}>{r.tipoDescricao}</span>
                     </td>
-                    <td style={{ color: r.acontecimento ? 'inherit' : 'var(--text-light)', maxWidth: 300 }}>
-                      {r.acontecimento || '—'}
+                    <td className="td-desc">
+                      {r.acontecimento || <span style={{ opacity: .4 }}>—</span>}
                     </td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td className="td-rem">
                       <button
                         className="btn btn-danger"
                         style={{ padding: '6px 12px', fontSize: 13 }}

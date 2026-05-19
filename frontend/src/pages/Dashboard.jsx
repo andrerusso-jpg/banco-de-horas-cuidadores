@@ -213,8 +213,7 @@ export default function Dashboard() {
               <thead>
                 <tr>
                   <th>Nome</th>
-                  <th>Saldo</th>
-                  <th>Registros</th>
+                  <th>Saldo / Registros</th>
                   <th></th>
                 </tr>
               </thead>
@@ -225,10 +224,14 @@ export default function Dashboard() {
                     className="clickable"
                     onClick={() => navigate(`/funcionario/${f.id}`)}
                   >
-                    <td style={{ fontWeight: 600 }}>{f.nome}</td>
-                    <td><SaldoBadge minutos={f.saldoMinutos} formatado={f.saldoFormatado} /></td>
-                    <td style={{ color: 'var(--text-light)' }}>{f.totalRegistros}</td>
-                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                    <td className="td-nome">{f.nome}</td>
+                    <td className="td-meta">
+                      <SaldoBadge minutos={f.saldoMinutos} formatado={f.saldoFormatado} />
+                      <span style={{ color: 'var(--text-light)', fontSize: 13 }}>
+                        {f.totalRegistros} reg.
+                      </span>
+                    </td>
+                    <td className="td-acoes">
                       <button
                         className="btn btn-ghost"
                         onClick={e => { e.stopPropagation(); navigate(`/funcionario/${f.id}`) }}
@@ -237,7 +240,7 @@ export default function Dashboard() {
                       </button>
                       <button
                         className="btn btn-danger"
-                        style={{ marginLeft: 6, padding: '7px 10px' }}
+                        style={{ padding: '7px 10px' }}
                         onClick={e => { e.stopPropagation(); setConfirmDelete(f) }}
                         title="Remover funcionário"
                       >
