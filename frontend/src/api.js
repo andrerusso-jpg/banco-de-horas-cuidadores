@@ -28,6 +28,9 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
+  deletarFuncionario: (id) =>
+    req(`/funcionarios/${id}`, { method: 'DELETE' }),
+
   deletarRegistro: (funcionarioId, registroId) =>
     req(`/funcionarios/${funcionarioId}/registros/${registroId}`, { method: 'DELETE' }),
 

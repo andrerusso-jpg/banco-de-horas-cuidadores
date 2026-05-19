@@ -62,6 +62,22 @@ export default function Dashboard() {
   const [busca, setBusca] = useState('')
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(null) // { id, nome }
+
+  async function handleDelete(f, e) {
+    e.stopPropagation()
+    setConfirmDelete(f)
+  }
+
+  async function confirmarDelete() {
+    try {
+      await api.deletarFuncionario(confirmDelete.id)
+      setConfirmDelete(null)
+      carregar()
+    } catch (err) {
+      alert('Erro ao remover: ' + err.message)
+    }
+  }
 
   const carregar = useCallback(async () => {
     setLoading(true)
@@ -143,12 +159,20 @@ export default function Dashboard() {
                     <td>{f.nome}</td>
                     <td><SaldoBadge minutos={f.saldoMinutos} formatado={f.saldoFormatado} /></td>
                     <td style={{ color: 'var(--text-light)' }}>{f.totalRegistros}</td>
-                    <td style={{ textAlign: 'right' }}>
+                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                       <button
                         className="btn btn-ghost"
                         onClick={e => { e.stopPropagation(); navigate(`/funcionario/${f.id}`) }}
                       >
                         Ver →
+                      </button>
+                      <button
+                        className="btn btn-danger"
+                        style={{ marginLeft: '8px' }}
+                        onClick={e => handleDelete(f, e)}
+                        title="Remover funcionário"
+                      >
+                        🗑
                       </button>
                     </td>
                   </tr>
@@ -164,6 +188,24 @@ export default function Dashboard() {
           onClose={() => setShowModal(false)}
           onCreated={carregar}
         />
+      )}
+
+      {confirmDelete && (
+        <div className="modal-overlay" onClick={() => setConfirmDelete(null)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <h3>Remover Funcionário</h3>
+            <p style={{ margin: '16px 0' }}>
+              Tem certeza que deseja remover <strong>{confirmDelete.nome}</strong>?<br />
+              <span style={{ color: 'var(--danger, #e53e3e)', fontSize: '0.9em' }}>
+                Todos os registros de banco de horas serão apagados.
+              </span>
+            </p>
+            <div className="form-actions">
+              <button className="btn btn-back" onClick={() => setConfirmDelete(null)}>Cancelar</button>
+              <button className="btn btn-danger" onClick={confirmarDelete}>Remover</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

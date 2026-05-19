@@ -43,6 +43,12 @@ public class BancoDeHorasController {
         return service.adicionarRegistro(id, dto);
     }
 
+    @DeleteMapping("/funcionarios/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletarFuncionario(@PathVariable Long id) {
+        service.deletarFuncionario(id);
+    }
+
     @DeleteMapping("/funcionarios/{id}/registros/{registroId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarRegistro(@PathVariable Long id, @PathVariable Long registroId) {

@@ -80,6 +80,13 @@ public class BancoDeHorasService {
         registroRepo.delete(r);
     }
 
+    public void deletarFuncionario(Long id) {
+        Funcionario f = funcionarioRepo.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Funcionário não encontrado"));
+        registroRepo.deleteAll(f.getRegistros());
+        funcionarioRepo.delete(f);
+    }
+
     @Transactional(readOnly = true)
     public ResumoGeralDTO getResumo() {
         List<Funcionario> todos = funcionarioRepo.findAll();
