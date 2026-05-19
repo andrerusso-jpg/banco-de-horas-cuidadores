@@ -2,11 +2,39 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../api'
 
+/* ── Toast ── */
+function Toast({ msg, type, onDone }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 3000)
+    return () => clearTimeout(t)
+  }, [onDone])
+  const icon = type === 'success' ? '✓' : '✕'
+  return <div className={`toast ${type}`}><span>{icon}</span>{msg}</div>
+}
+
+/* ── Skeleton de carregamento ── */
+function SkeletonRows() {
+  return (
+    <div className="skeleton-wrap">
+      {[1,2,3,4,5].map(i => (
+        <div className="skeleton-row" key={i}>
+          <div className="skeleton sk-name" style={{ width: `${130 + i * 22}px` }} />
+          <div className="skeleton sk-badge" />
+          <div className="skeleton sk-num" />
+          <div className="skeleton sk-btn" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/* ── Badge de saldo ── */
 function SaldoBadge({ minutos, formatado }) {
   const cls = minutos > 0 ? 'positivo' : minutos < 0 ? 'negativo' : 'zero'
   return <span className={`saldo ${cls}`}>{formatado}</span>
 }
 
+/* ── Modal novo funcionário ── */
 function NovoFuncionarioModal({ onClose, onCreated }) {
   const [nome, setNome] = useState('')
   const [erro, setErro] = useState('')
@@ -31,15 +59,15 @@ function NovoFuncionarioModal({ onClose, onCreated }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <h3>Novo Funcionário</h3>
-        {erro && <div className="error-msg">{erro}</div>}
+        <h3>➕ Novo Funcionário</h3>
+        {erro && <div className="error-msg">⚠ {erro}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Nome completo</label>
             <input
               autoFocus
               value={nome}
-              onChange={e => setNome(e.target.value)}
+              onChange={e => setNome(e.target.value.toUpperCase())}
               placeholder="Ex: MARIA SILVA"
             />
           </div>
@@ -55,6 +83,39 @@ function NovoFuncionarioModal({ onClose, onCreated }) {
   )
 }
 
+/* ── Modal confirmar exclusão ── */
+function ConfirmDeleteModal({ funcionario, onClose, onConfirm }) {
+  const [loading, setLoading] = useState(false)
+
+  async function handle() {
+    setLoading(true)
+    await onConfirm()
+    setLoading(false)
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e => e.stopPropagation()}>
+        <div className="modal-danger-icon">🗑️</div>
+        <h3>Remover Funcionário</h3>
+        <p style={{ color: 'var(--text-light)', marginBottom: 8, lineHeight: 1.6 }}>
+          Tem certeza que deseja remover <strong style={{ color: 'var(--text)' }}>{funcionario.nome}</strong>?
+        </p>
+        <p style={{ fontSize: 13, color: 'var(--red)', fontWeight: 500 }}>
+          ⚠ Todos os registros de banco de horas serão apagados permanentemente.
+        </p>
+        <div className="form-actions">
+          <button className="btn btn-back" onClick={onClose} disabled={loading}>Cancelar</button>
+          <button className="btn btn-danger" onClick={handle} disabled={loading}>
+            {loading ? 'Removendo...' : 'Sim, remover'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Dashboard ── */
 export default function Dashboard() {
   const navigate = useNavigate()
   const [funcionarios, setFuncionarios] = useState([])
@@ -62,21 +123,11 @@ export default function Dashboard() {
   const [busca, setBusca] = useState('')
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
-  const [confirmDelete, setConfirmDelete] = useState(null) // { id, nome }
+  const [confirmDelete, setConfirmDelete] = useState(null)
+  const [toast, setToast] = useState(null)
 
-  async function handleDelete(f, e) {
-    e.stopPropagation()
-    setConfirmDelete(f)
-  }
-
-  async function confirmarDelete() {
-    try {
-      await api.deletarFuncionario(confirmDelete.id)
-      setConfirmDelete(null)
-      carregar()
-    } catch (err) {
-      alert('Erro ao remover: ' + err.message)
-    }
+  function showToast(msg, type = 'success') {
+    setToast({ msg, type })
   }
 
   const carregar = useCallback(async () => {
@@ -86,7 +137,7 @@ export default function Dashboard() {
       setFuncionarios(lista)
       setResumo(res)
     } catch {
-      // silencioso — backend pode não estar disponível em dev
+      // silencioso
     } finally {
       setLoading(false)
     }
@@ -97,14 +148,27 @@ export default function Dashboard() {
     return () => clearTimeout(t)
   }, [carregar])
 
+  async function handleDelete() {
+    try {
+      await api.deletarFuncionario(confirmDelete.id)
+      showToast(`${confirmDelete.nome} removido com sucesso.`)
+      setConfirmDelete(null)
+      carregar()
+    } catch (err) {
+      showToast('Erro ao remover: ' + err.message, 'error')
+      setConfirmDelete(null)
+    }
+  }
+
   return (
     <div className="page">
       <div className="container">
 
+        {/* Stats */}
         {resumo && (
           <div className="stats">
             <div className="stat-card total">
-              <div className="label">Total de Funcionários</div>
+              <div className="label">Total</div>
               <div className="value">{resumo.totalFuncionarios}</div>
             </div>
             <div className="stat-card credito">
@@ -122,6 +186,7 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* Toolbar */}
         <div className="toolbar">
           <input
             className="search-input"
@@ -134,11 +199,15 @@ export default function Dashboard() {
           </button>
         </div>
 
+        {/* Tabela */}
         <div className="card">
           {loading ? (
-            <div className="loading">Carregando...</div>
+            <SkeletonRows />
           ) : funcionarios.length === 0 ? (
-            <div className="empty"><p>Nenhum funcionário encontrado.</p></div>
+            <div className="empty">
+              <div className="empty-icon">👤</div>
+              <p>{busca ? `Nenhum resultado para "${busca}"` : 'Nenhum funcionário cadastrado.'}</p>
+            </div>
           ) : (
             <table>
               <thead>
@@ -156,7 +225,7 @@ export default function Dashboard() {
                     className="clickable"
                     onClick={() => navigate(`/funcionario/${f.id}`)}
                   >
-                    <td>{f.nome}</td>
+                    <td style={{ fontWeight: 600 }}>{f.nome}</td>
                     <td><SaldoBadge minutos={f.saldoMinutos} formatado={f.saldoFormatado} /></td>
                     <td style={{ color: 'var(--text-light)' }}>{f.totalRegistros}</td>
                     <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
@@ -168,8 +237,8 @@ export default function Dashboard() {
                       </button>
                       <button
                         className="btn btn-danger"
-                        style={{ marginLeft: '8px' }}
-                        onClick={e => handleDelete(f, e)}
+                        style={{ marginLeft: 6, padding: '7px 10px' }}
+                        onClick={e => { e.stopPropagation(); setConfirmDelete(f) }}
                         title="Remover funcionário"
                       >
                         🗑
@@ -186,26 +255,20 @@ export default function Dashboard() {
       {showModal && (
         <NovoFuncionarioModal
           onClose={() => setShowModal(false)}
-          onCreated={carregar}
+          onCreated={() => { carregar(); showToast('Funcionário cadastrado!') }}
         />
       )}
 
       {confirmDelete && (
-        <div className="modal-overlay" onClick={() => setConfirmDelete(null)}>
-          <div className="modal" onClick={e => e.stopPropagation()}>
-            <h3>Remover Funcionário</h3>
-            <p style={{ margin: '16px 0' }}>
-              Tem certeza que deseja remover <strong>{confirmDelete.nome}</strong>?<br />
-              <span style={{ color: 'var(--danger, #e53e3e)', fontSize: '0.9em' }}>
-                Todos os registros de banco de horas serão apagados.
-              </span>
-            </p>
-            <div className="form-actions">
-              <button className="btn btn-back" onClick={() => setConfirmDelete(null)}>Cancelar</button>
-              <button className="btn btn-danger" onClick={confirmarDelete}>Remover</button>
-            </div>
-          </div>
-        </div>
+        <ConfirmDeleteModal
+          funcionario={confirmDelete}
+          onClose={() => setConfirmDelete(null)}
+          onConfirm={handleDelete}
+        />
+      )}
+
+      {toast && (
+        <Toast msg={toast.msg} type={toast.type} onDone={() => setToast(null)} />
       )}
     </div>
   )

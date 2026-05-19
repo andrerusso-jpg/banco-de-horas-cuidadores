@@ -6,8 +6,11 @@ function Header() {
   return (
     <header>
       <div className="container">
-        <span>🕐</span>
-        <h1>Banco de Horas Cuidadores</h1>
+        <div className="logo-icon">🕐</div>
+        <div>
+          <h1>Banco de Horas</h1>
+          <span className="subtitle">Gestão de Cuidadores</span>
+        </div>
       </div>
     </header>
   )
