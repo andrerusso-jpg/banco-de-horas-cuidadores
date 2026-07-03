@@ -13,32 +13,32 @@ jobs:
       - name: Checkout repositório
         uses: actions/checkout@v4
         with:
-          ref: backup
           fetch-depth: 0
-        continue-on-error: true
 
-      - name: Checkout main se branch backup não existir
+      - name: Criar branch backup se não existir
         run: |
-          git fetch origin backup 2>/dev/null || git checkout -b backup
+          git fetch origin backup 2>/dev/null && git checkout backup || git checkout -b backup
 
-      - name: Instalar PostgreSQL client
-        run: sudo apt-get install -y postgresql-client
+      - name: Instalar PostgreSQL 16 client
+        run: |
+          sudo apt-get install -y curl gnupg lsb-release
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
+          echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-client-16
 
       - name: Fazer dump do banco
         env:
-          PGPASSWORD: ${{ secrets.PGPASSWORD }}
           PGSSLMODE: require
+          PGSSLROOTCERT: /etc/ssl/certs/ca-certificates.crt
         run: |
           mkdir -p backups
           FILENAME="backups/backup_$(date +'%Y-%m-%d_%H-%M').sql"
-          pg_dump \
-            -h ${{ secrets.PGHOST }} \
-            -p ${{ secrets.PGPORT }} \
-            -U ${{ secrets.PGUSER }} \
-            -d ${{ secrets.PGDATABASE }} \
+          pg_dump "postgresql://${{ secrets.PGUSER }}:${{ secrets.PGPASSWORD }}@${{ secrets.PGHOST }}:${{ secrets.PGPORT }}/${{ secrets.PGDATABASE }}?sslmode=require" \
             --no-owner --no-acl \
             -f "$FILENAME"
           echo "Backup salvo: $FILENAME"
+          wc -l "$FILENAME"
           ls -lh backups/
 
       - name: Manter só os últimos 30 backups
