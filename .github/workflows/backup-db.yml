@@ -27,6 +27,7 @@ jobs:
       - name: Fazer dump do banco
         env:
           PGPASSWORD: ${{ secrets.PGPASSWORD }}
+          PGSSLMODE: require
         run: |
           mkdir -p backups
           FILENAME="backups/backup_$(date +'%Y-%m-%d_%H-%M').sql"
