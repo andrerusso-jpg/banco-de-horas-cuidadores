@@ -60,6 +60,11 @@ public class BancoDeHorasController {
         return service.getResumo();
     }
 
+    @GetMapping("/export")
+    public List<FuncionarioDetalheDTO> exportar() {
+        return service.exportarTodos();
+    }
+
     @GetMapping("/health")
     public Map<String, String> health() {
         return Map.of("status", "ok");

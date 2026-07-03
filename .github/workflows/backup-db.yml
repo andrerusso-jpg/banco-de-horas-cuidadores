@@ -19,32 +19,34 @@ jobs:
         run: |
           git fetch origin backup 2>/dev/null && git checkout backup || git checkout -b backup
 
-      - name: Instalar PostgreSQL 16 client
+      - name: Aguardar sistema estar ativo
         run: |
-          sudo apt-get install -y curl gnupg lsb-release
-          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/postgresql.gpg
-          echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
-          sudo apt-get update -qq
-          sudo apt-get install -y postgresql-client-16
+          for i in {1..5}; do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://banco-de-horas-cuidadores.onrender.com/api/health)
+            if [ "$STATUS" = "200" ]; then echo "Sistema ativo!"; break; fi
+            echo "Tentativa $i: status $STATUS. Aguardando 30s..."
+            sleep 30
+          done
 
-      - name: Fazer dump do banco
-        env:
-          PGSSLMODE: require
-          PGSSLROOTCERT: /etc/ssl/certs/ca-certificates.crt
+      - name: Fazer backup via API
         run: |
           mkdir -p backups
-          FILENAME="backups/backup_$(date +'%Y-%m-%d_%H-%M').sql"
-          pg_dump "postgresql://${{ secrets.PGUSER }}:${{ secrets.PGPASSWORD }}@${{ secrets.PGHOST }}:${{ secrets.PGPORT }}/${{ secrets.PGDATABASE }}?sslmode=require" \
-            --no-owner --no-acl \
-            -f "$FILENAME"
+          FILENAME="backups/backup_$(date +'%Y-%m-%d_%H-%M').json"
+          curl -sf --max-time 60 \
+            https://banco-de-horas-cuidadores.onrender.com/api/export \
+            -o "$FILENAME"
           echo "Backup salvo: $FILENAME"
-          wc -l "$FILENAME"
-          ls -lh backups/
+          python3 -c "
+          import json, sys
+          data = json.load(open('$FILENAME'))
+          total_registros = sum(len(f.get('registros', [])) for f in data)
+          print(f'Funcionários: {len(data)} | Registros: {total_registros}')
+          "
 
       - name: Manter só os últimos 30 backups
         run: |
           cd backups
-          ls -t *.sql | tail -n +31 | xargs -r rm --
+          ls -t *.json 2>/dev/null | tail -n +31 | xargs -r rm --
           cd ..
 
       - name: Commit e push do backup

@@ -25,6 +25,14 @@ public class BancoDeHorasService {
     }
 
     @Transactional(readOnly = true)
+    public List<FuncionarioDetalheDTO> exportarTodos() {
+        return funcionarioRepo.findAll()
+                .stream()
+                .map(FuncionarioDetalheDTO::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<FuncionarioResumoDTO> listarTodos() {
         return funcionarioRepo.findAll()
                 .stream()
