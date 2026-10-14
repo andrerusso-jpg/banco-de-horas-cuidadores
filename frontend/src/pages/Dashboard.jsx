@@ -233,12 +233,6 @@ export default function Dashboard() {
                     </td>
                     <td className="td-acoes">
                       <button
-                        className="btn btn-ghost"
-                        onClick={e => { e.stopPropagation(); navigate(`/funcionario/${f.id}`) }}
-                      >
-                        Ver →
-                      </button>
-                      <button
                         className="btn btn-danger"
                         style={{ padding: '7px 10px' }}
                         onClick={e => { e.stopPropagation(); setConfirmDelete(f) }}
