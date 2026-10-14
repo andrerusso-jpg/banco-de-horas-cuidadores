@@ -31,6 +31,12 @@ export const api = {
   deletarFuncionario: (id) =>
     req(`/funcionarios/${id}`, { method: 'DELETE' }),
 
+  atualizarRegistro: (funcionarioId, registroId, data) =>
+    req(`/funcionarios/${funcionarioId}/registros/${registroId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
   deletarRegistro: (funcionarioId, registroId) =>
     req(`/funcionarios/${funcionarioId}/registros/${registroId}`, { method: 'DELETE' }),
 

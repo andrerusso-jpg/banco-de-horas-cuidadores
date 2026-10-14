@@ -82,6 +82,22 @@ public class BancoDeHorasService {
         return RegistroDTO.from(registroRepo.save(r));
     }
 
+    public RegistroDTO atualizarRegistro(Long funcionarioId, Long registroId, RegistroRequestDTO dto) {
+        Registro r = registroRepo.findByIdAndFuncionarioId(registroId, funcionarioId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Registro não encontrado"));
+
+        int totalMinutos = dto.horas() >= 0
+                ? dto.horas() * 60 + dto.minutos()
+                : dto.horas() * 60 - dto.minutos();
+
+        r.setData(dto.data());
+        r.setTipo(dto.tipo());
+        r.setTotalMinutos(totalMinutos);
+        r.setAcontecimento(dto.acontecimento());
+
+        return RegistroDTO.from(registroRepo.save(r));
+    }
+
     public void deletarRegistro(Long funcionarioId, Long registroId) {
         Registro r = registroRepo.findByIdAndFuncionarioId(registroId, funcionarioId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Registro não encontrado"));

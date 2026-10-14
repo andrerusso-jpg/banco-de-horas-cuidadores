@@ -49,6 +49,12 @@ public class BancoDeHorasController {
         service.deletarFuncionario(id);
     }
 
+    @PutMapping("/funcionarios/{id}/registros/{registroId}")
+    public RegistroDTO atualizarRegistro(@PathVariable Long id, @PathVariable Long registroId,
+                                          @Valid @RequestBody RegistroRequestDTO dto) {
+        return service.atualizarRegistro(id, registroId, dto);
+    }
+
     @DeleteMapping("/funcionarios/{id}/registros/{registroId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarRegistro(@PathVariable Long id, @PathVariable Long registroId) {

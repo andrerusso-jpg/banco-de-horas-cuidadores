@@ -17,48 +17,29 @@ function Toast({ msg, type, onDone }) {
   return <div className={`toast ${type}`}><span>{type === 'success' ? '✓' : '✕'}</span>{msg}</div>
 }
 
-/* ── Modal de registro ── */
-function RegistroModal({ funcionarioId, onClose, onSaved }) {
-  const hoje = new Date().toISOString().split('T')[0]
-  const [form, setForm] = useState({
-    data: hoje,
-    tipo: 'CAPACITACAO_REUNIAO',
-    horas: 0,
-    minutos: 0,
-    acontecimento: ''
-  })
-  const [erro, setErro] = useState('')
-  const [loading, setLoading] = useState(false)
+/* ── Formulário reutilizável de registro ── */
+function RegistroForm({ inicial, loading, erro, onSubmit, onClose, titulo }) {
+  const [form, setForm] = useState(inicial)
 
   function set(field, value) {
     setForm(prev => ({ ...prev, [field]: value }))
   }
 
-  async function handleSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault()
-    setLoading(true)
-    setErro('')
-    try {
-      await api.adicionarRegistro(funcionarioId, {
-        data: form.data,
-        tipo: form.tipo,
-        horas: parseInt(form.horas),
-        minutos: parseInt(form.minutos),
-        acontecimento: form.acontecimento,
-      })
-      onSaved()
-      onClose()
-    } catch (err) {
-      setErro(err.message)
-    } finally {
-      setLoading(false)
-    }
+    onSubmit({
+      data: form.data,
+      tipo: form.tipo,
+      horas: parseInt(form.horas),
+      minutos: parseInt(form.minutos),
+      acontecimento: form.acontecimento,
+    })
   }
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <h3>📋 Adicionar Registro de Horas</h3>
+        <h3>{titulo}</h3>
         {erro && <div className="error-msg">⚠ {erro}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-row">
@@ -105,12 +86,82 @@ function RegistroModal({ funcionarioId, onClose, onSaved }) {
           <div className="form-actions">
             <button type="button" className="btn btn-back" onClick={onClose}>Cancelar</button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Salvando...' : 'Salvar Registro'}
+              {loading ? 'Salvando...' : 'Salvar'}
             </button>
           </div>
         </form>
       </div>
     </div>
+  )
+}
+
+/* ── Modal de adicionar registro ── */
+function RegistroModal({ funcionarioId, onClose, onSaved }) {
+  const hoje = new Date().toISOString().split('T')[0]
+  const [erro, setErro] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(data) {
+    setLoading(true)
+    setErro('')
+    try {
+      await api.adicionarRegistro(funcionarioId, data)
+      onSaved()
+      onClose()
+    } catch (err) {
+      setErro(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <RegistroForm
+      titulo="📋 Adicionar Registro de Horas"
+      inicial={{ data: hoje, tipo: 'CAPACITACAO_REUNIAO', horas: 0, minutos: 0, acontecimento: '' }}
+      loading={loading}
+      erro={erro}
+      onSubmit={handleSubmit}
+      onClose={onClose}
+    />
+  )
+}
+
+/* ── Modal de alterar registro ── */
+function AlterarModal({ funcionarioId, registro, onClose, onSaved }) {
+  const [erro, setErro] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const horas = Math.trunc(registro.totalMinutos / 60)
+  const minutos = Math.abs(registro.totalMinutos % 60)
+
+  // data vem no formato dd/MM/yyyy, precisa converter para yyyy-MM-dd
+  const [dia, mes, ano] = registro.data.split('/')
+  const dataISO = `${ano}-${mes}-${dia}`
+
+  async function handleSubmit(data) {
+    setLoading(true)
+    setErro('')
+    try {
+      await api.atualizarRegistro(funcionarioId, registro.id, data)
+      onSaved()
+      onClose()
+    } catch (err) {
+      setErro(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <RegistroForm
+      titulo="✏️ Alterar Registro"
+      inicial={{ data: dataISO, tipo: registro.tipo, horas, minutos, acontecimento: registro.acontecimento }}
+      loading={loading}
+      erro={erro}
+      onSubmit={handleSubmit}
+      onClose={onClose}
+    />
   )
 }
 
@@ -121,6 +172,7 @@ export default function FuncionarioDetalhe() {
   const [funcionario, setFuncionario] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [editando, setEditando] = useState(null)
   const [deletando, setDeletando] = useState(null)
   const [toast, setToast] = useState(null)
 
@@ -215,8 +267,7 @@ export default function FuncionarioDetalhe() {
               <thead>
                 <tr>
                   <th>Data</th>
-                  <th>Tipo</th>
-                  <th>Horas</th>
+                  <th>Hora</th>
                   <th>Descrição</th>
                   <th></th>
                 </tr>
@@ -229,12 +280,18 @@ export default function FuncionarioDetalhe() {
                       <span className={`saldo ${r.totalMinutos >= 0 ? 'positivo' : 'negativo'}`}>
                         {r.horasFormatadas}
                       </span>
-                      <span className={`tipo-badge tipo-${r.tipo}`}>{r.tipoDescricao}</span>
                     </td>
                     <td className="td-desc">
                       {r.acontecimento || <span style={{ opacity: .4 }}>—</span>}
                     </td>
                     <td className="td-rem">
+                      <button
+                        className="btn btn-secondary"
+                        style={{ padding: '6px 12px', fontSize: 13, marginRight: 6 }}
+                        onClick={() => setEditando(r)}
+                      >
+                        ✏️ Alterar
+                      </button>
                       <button
                         className="btn btn-danger"
                         style={{ padding: '6px 12px', fontSize: 13 }}
@@ -257,6 +314,15 @@ export default function FuncionarioDetalhe() {
           funcionarioId={id}
           onClose={() => setShowModal(false)}
           onSaved={() => { carregar(); showToast('Registro adicionado!') }}
+        />
+      )}
+
+      {editando && (
+        <AlterarModal
+          funcionarioId={id}
+          registro={editando}
+          onClose={() => setEditando(null)}
+          onSaved={() => { carregar(); showToast('Registro alterado!'); setEditando(null) }}
         />
       )}
 

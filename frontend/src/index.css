@@ -193,6 +193,16 @@ header .subtitle {
   border-color: #f87171;
   transform: translateY(-1px);
 }
+.btn-secondary {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+.btn-secondary:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  transform: translateY(-1px);
+}
 .btn-ghost {
   background: transparent;
   color: var(--text-light);
