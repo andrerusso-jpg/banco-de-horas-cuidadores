@@ -117,7 +117,7 @@ function RegistroModal({ funcionarioId, onClose, onSaved }) {
 
   return (
     <RegistroForm
-      titulo="📋 Adicionar Registro de Horas"
+      titulo="Adicionar Registro de Horas"
       inicial={{ data: hoje, tipo: 'CAPACITACAO_REUNIAO', horas: 0, minutos: 0, acontecimento: '' }}
       loading={loading}
       erro={erro}
@@ -155,7 +155,7 @@ function AlterarModal({ funcionarioId, registro, onClose, onSaved }) {
 
   return (
     <RegistroForm
-      titulo="✏️ Alterar Registro"
+      titulo="Alterar Registro"
       inicial={{ data: dataISO, tipo: registro.tipo, horas, minutos, acontecimento: registro.acontecimento }}
       loading={loading}
       erro={erro}
@@ -259,7 +259,7 @@ export default function FuncionarioDetalhe() {
         <div className="card">
           {funcionario.registros.length === 0 ? (
             <div className="empty">
-              <div className="empty-icon">📋</div>
+              <div className="empty-icon"></div>
               <p>Nenhum registro ainda. Clique em "Adicionar Registro" para começar.</p>
             </div>
           ) : (
@@ -290,7 +290,7 @@ export default function FuncionarioDetalhe() {
                         style={{ padding: '6px 12px', fontSize: 13, marginRight: 6 }}
                         onClick={() => setEditando(r)}
                       >
-                        ✏️ Alterar
+                        Alterar
                       </button>
                       <button
                         className="btn btn-danger"
@@ -298,7 +298,7 @@ export default function FuncionarioDetalhe() {
                         disabled={deletando === r.id}
                         onClick={() => handleDelete(r.id)}
                       >
-                        {deletando === r.id ? '...' : '🗑 Remover'}
+                        {deletando === r.id ? '...' : 'Remover'}
                       </button>
                     </td>
                   </tr>

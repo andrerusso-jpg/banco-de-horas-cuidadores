@@ -96,7 +96,7 @@ function ConfirmDeleteModal({ funcionario, onClose, onConfirm }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <div className="modal-danger-icon">🗑️</div>
+        <div className="modal-danger-icon"></div>
         <h3>Remover Funcionário</h3>
         <p style={{ color: 'var(--text-light)', marginBottom: 8, lineHeight: 1.6 }}>
           Tem certeza que deseja remover <strong style={{ color: 'var(--text)' }}>{funcionario.nome}</strong>?
@@ -244,7 +244,7 @@ export default function Dashboard() {
                         onClick={e => { e.stopPropagation(); setConfirmDelete(f) }}
                         title="Remover funcionário"
                       >
-                        🗑
+                        Remover
                       </button>
                     </td>
                   </tr>
